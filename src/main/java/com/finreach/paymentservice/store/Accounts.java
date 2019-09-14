@@ -21,16 +21,16 @@ public class Accounts {
         return id;
     }
 
-    public static void transaction(String id, Double amount) {
-        final Optional<Account> accountOpt = get(id);
+    public static void transaction(String accountId, Double amount) {
+        final Optional<Account> accountOpt = get(accountId);
         if (!accountOpt.isPresent()) {
             return;
         }
 
         Account account = accountOpt.get();
-        account.addTransaction(Transactions.create(id, amount));
+        account.addTransaction(Transactions.create(accountId, amount));
         account.updateBalance(amount);
-        ACCOUNTS.put(id, account);
+        ACCOUNTS.put(accountId, account);
     }
 
     public static Optional<Account> get(String id) {
