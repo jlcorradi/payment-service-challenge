@@ -51,24 +51,20 @@ public class PaymentServiceTest {
     @Test
     public void shouldCreatePayment() {
         Payment payment = createPayment(100d);
-        assertEquals(PaymentStatus.CREATED, payment.getStatus());
+        assertEquals(PaymentState.CREATED, payment.getState());
         assertNotNull(Payments.get(payment.getId()));
     }
 
-    @Test(expected = PaymentException.class)
+    @Test
     public void shouldNotExecutePaymentInsufficientFund() {
         Payment payment = createPayment(200d);
         final Account sourceAccount = Accounts.get(payment.getSourceAccountId()).orElseThrow(
                 () -> new IllegalArgumentException("sourceAccount"));
         sourceAccount.setBalance(199d);
-        try {
-            paymentService.execute(payment.getId());
-        } catch (PaymentException ex) {
-            assertEquals("Payment has not had it's status set to REJECTED",
-                    Payments.get(payment.getId()).orElseThrow(() -> new RuntimeException()).getStatus(),
-                    PaymentStatus.REJECTED);
-            throw ex;
-        }
+        paymentService.execute(payment.getId());
+        assertEquals("Payment has not had it's status set to REJECTED",
+                Payments.get(payment.getId()).orElseThrow(() -> new RuntimeException()).getState(),
+                PaymentState.REJECTED);
     }
 
     @Test(expected = PaymentException.class)
@@ -79,7 +75,7 @@ public class PaymentServiceTest {
         try {
             paymentService.execute(payment.getId());
         } catch (PaymentException ex) {
-            assertEquals(ex.getMessage(), String.format(PaymentException.INVALID_STATUS, payment.getStatus()));
+            assertEquals(ex.getMessage(), String.format(PaymentException.INVALID_STATUS, payment.getState()));
             throw ex;
         }
     }
@@ -92,7 +88,7 @@ public class PaymentServiceTest {
         try {
             paymentService.execute(payment.getId());
         } catch (PaymentException ex) {
-            assertEquals(ex.getMessage(), String.format(PaymentException.INVALID_STATUS, payment.getStatus()));
+            assertEquals(ex.getMessage(), String.format(PaymentException.INVALID_STATUS, payment.getState()));
             throw ex;
         }
     }
@@ -105,7 +101,7 @@ public class PaymentServiceTest {
         try {
             paymentService.cancel(payment.getId());
         } catch (PaymentException ex) {
-            assertEquals(ex.getMessage(), String.format(PaymentException.INVALID_STATUS, payment.getStatus()));
+            assertEquals(ex.getMessage(), String.format(PaymentException.INVALID_STATUS, payment.getState()));
             throw ex;
         }
     }
@@ -114,7 +110,7 @@ public class PaymentServiceTest {
     public void shouldExecutePayment() {
         Payment payment = createPayment(300d);
         paymentService.execute(payment.getId());
-        assertEquals(PaymentStatus.EXECUTED, payment.getStatus());
+        assertEquals(PaymentState.EXECUTED, payment.getState());
     }
 
     private Payment createPayment(Double amount) {

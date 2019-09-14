@@ -37,14 +37,14 @@ public class PrimaryPaymentService implements PaymentService {
         payment.setSourceAccountId(source.getId());
         payment.setDestinationAccountId(destination.getId());
         payment.setAmount(createPayment.getAmount());
-        payment.setStatus(PaymentStatus.CREATED);
+        payment.setState(PaymentState.CREATED);
 
         Payments.createOrUpdate(payment);
         return payment;
     }
 
     @Override
-    public void execute(String id) {
+    public Payment execute(String id) {
         Payment payment = Payments.get(id).orElseThrow(() -> new EntityNotFoundException("Payment", id));
         Account source = Accounts.get(payment.getSourceAccountId()).orElseThrow(
                 () -> new EntityNotFoundException("Account", payment.getSourceAccountId()));
@@ -52,30 +52,38 @@ public class PrimaryPaymentService implements PaymentService {
                 () -> new EntityNotFoundException("Account", payment.getDestinationAccountId()));
 
         // Performing Validations
-        if (PaymentStatus.CREATED != payment.getStatus()) {
-            throw PaymentException.invalidPaymentStatus(payment.getStatus());
+        if (PaymentState.CREATED != payment.getState()) {
+            throw PaymentException.invalidPaymentStatus(payment.getState());
         }
 
         if (source.getBalance() - payment.getAmount() < 0) {
-            payment.setStatus(PaymentStatus.REJECTED);
-            throw PaymentException.insufficientFunds();
+            // Marking payment as rejected due to insufficient funds
+            payment.setState(PaymentState.REJECTED);
+        } else {
+            // Generating transactions
+            Accounts.transaction(source.getId(), payment.getAmount() * -1);
+            Accounts.transaction(destination.getId(), payment.getAmount());
+            payment.setState(PaymentState.EXECUTED);
         }
 
-        // Generating transactions
-        Accounts.transaction(source.getId(), payment.getAmount() * -1);
-        Accounts.transaction(destination.getId(), payment.getAmount());
-        payment.setStatus(PaymentStatus.EXECUTED);
+        return payment;
     }
 
     @Override
-    public void cancel(String id) {
+    public Payment cancel(String id) {
         Payment payment = Payments.get(id).orElseThrow(() -> new EntityNotFoundException("Payment", id));
 
         // Performing validations
-        if (PaymentStatus.CREATED != payment.getStatus()) {
-            throw PaymentException.invalidPaymentStatus(payment.getStatus());
+        if (PaymentState.CREATED != payment.getState()) {
+            throw PaymentException.invalidPaymentStatus(payment.getState());
         }
 
-        payment.setStatus(PaymentStatus.CANCELED);
+        payment.setState(PaymentState.CANCELED);
+        return payment;
+    }
+
+    @Override
+    public Payment get(String id) {
+        return Payments.get(id).orElseThrow(() -> new EntityNotFoundException("Payment", id));
     }
 }

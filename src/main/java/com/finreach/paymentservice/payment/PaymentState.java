@@ -1,6 +1,6 @@
 package com.finreach.paymentservice.payment;
 
-public enum PaymentStatus {
+public enum PaymentState {
 
     CREATED, REJECTED, CANCELED, EXECUTED;
 

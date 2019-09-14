@@ -6,8 +6,9 @@ public interface PaymentService {
 
     Payment create(CreatePayment createPayment);
 
-    void execute(String id);
+    Payment execute(String id);
 
-    void cancel(String id);
+    Payment cancel(String id);
 
+    Payment get(String id);
 }

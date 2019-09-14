@@ -11,7 +11,7 @@ public class Payment {
     private String sourceAccountId;
     private String destinationAccountId;
     private Double amount;
-    private PaymentStatus status;
+    private PaymentState state;
 
     public String getId() {
         return id;
@@ -61,12 +61,12 @@ public class Payment {
         this.amount = amount;
     }
 
-    public PaymentStatus getStatus() {
-        return status;
+    public PaymentState getState() {
+        return state;
     }
 
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
+    public void setState(PaymentState state) {
+        this.state = state;
     }
 
     @Override
