@@ -67,6 +67,7 @@ public class Payment {
 
     public void setState(PaymentState state) {
         this.state = state;
+        this.lastModifiedAt = LocalDateTime.now();
     }
 
     @Override

@@ -18,8 +18,8 @@ public class PaymentResourceAssembler implements ResourceAssembler<Payment, Reso
 
         if (PaymentState.CREATED == payment.getState()) {
             paymentResource.add(
-                    linkTo(methodOn(PaymentController.class).execute(payment.getId())).withRel("execute"),
-                    linkTo(methodOn(PaymentController.class).cancel(payment.getId())).withRel("cancel")
+                    linkTo(methodOn(PaymentController.class).execute(payment.getId())).withRel("execute").withType("PUT"),
+                    linkTo(methodOn(PaymentController.class).cancel(payment.getId())).withRel("cancel").withType("PUT")
             );
         }
 
