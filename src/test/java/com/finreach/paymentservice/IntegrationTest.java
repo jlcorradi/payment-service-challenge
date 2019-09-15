@@ -3,7 +3,9 @@ package com.finreach.paymentservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finreach.paymentservice.api.request.CreateAccount;
 import com.finreach.paymentservice.api.request.CreatePayment;
+import com.finreach.paymentservice.statistics.Statistics;
 import com.finreach.paymentservice.util.TransactionsGenerator;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.StringWriter;
+
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -224,8 +229,7 @@ public class IntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    // Please uncomment this test if you implemented statistics.
-    /*
+
     @Test
     public void scenario10() throws Exception {
         generator.generate();
@@ -242,10 +246,8 @@ public class IntegrationTest {
 
         final StringWriter writer = new StringWriter();
         mapper.writeValue(writer, expected);
-        Assert.assertEquals(writer.toString(), actual);
+        assertEquals(writer.toString(), actual);
     }
-    */
-
 
     private String createAccount(Double balance) throws Exception {
         return mapper.readTree(mockMvc.perform(post("/api/v1/account")

@@ -24,7 +24,7 @@ public class TransactionsGenerator {
     private static final double MAX_AMOUNT = 1000d;
     private static final double BALANCE = 1000000d;
 
-    private List<String> genAccounts = new ArrayList<>();
+    private final List<String> genAccounts = new ArrayList<>();
 
     public void generate() throws InterruptedException {
         generateAccounts();
@@ -52,11 +52,12 @@ public class TransactionsGenerator {
     }
 
     private void calculate(int periodInSeconds, Date when, Statistics statistics, Account account) {
-        Double max = -1d;
-        Double min = MAX_AMOUNT + 1;
-        Double sum = 0d;
+        // Using primitive types is faster, since we're going to use these values within a loop.
+        double max = -1d;
+        double min = MAX_AMOUNT + 1;
+        double sum = 0d;
         List<Transaction> filteredTransactions = account.getTransactions()
-                .stream()
+                .parallelStream()
                 .filter(transaction -> within(transaction.getCreated(), when, periodInSeconds))
                 .filter(transaction -> transaction.getAmount() > 0)
                 .collect(Collectors.toList());
@@ -66,8 +67,8 @@ public class TransactionsGenerator {
         }
 
         for (Transaction t : filteredTransactions) {
-            max = max > t.getAmount() ? max : t.getAmount();
-            min = min < t.getAmount() ? min : t.getAmount();
+            max = Double.max(t.getAmount(), max);
+            min = Double.min(t.getAmount(), min);
             sum += t.getAmount();
         }
 
@@ -97,9 +98,9 @@ public class TransactionsGenerator {
         return new RandomAccounts(a1, a2);
     }
 
-    private class RandomAccounts {
-        String a1;
-        String a2;
+    private static class RandomAccounts {
+        final String a1;
+        final String a2;
 
         RandomAccounts(String a1, String a2) {
             this.a1 = a1;

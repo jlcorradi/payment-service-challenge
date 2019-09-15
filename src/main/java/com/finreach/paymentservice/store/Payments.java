@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class Payments {
 
-    private static HashMap<String, Payment> PAYMENTS = new HashMap<>();
+    private static final HashMap<String, Payment> PAYMENTS = new HashMap<>();
 
     public static void createOrUpdate(final Payment payment) {
         PAYMENTS.put(payment.getId(), payment);

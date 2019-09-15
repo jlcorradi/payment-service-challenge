@@ -32,7 +32,7 @@ public class PaymentServiceTest {
     @Test(expected = BusinessException.class)
     public void shouldNotCreatePaymentInvalidAccount() {
         final String id = Accounts.create(new CreateAccount(100d));
-        paymentService.create(new CreatePayment(100d, id, "NONEXISTING"));
+        paymentService.create(new CreatePayment(100d, id, "NON_EXISTING"));
     }
 
     @Test(expected = PaymentException.class)
@@ -63,7 +63,7 @@ public class PaymentServiceTest {
         sourceAccount.setBalance(199d);
         paymentService.execute(payment.getId());
         assertEquals("Payment has not had it's status set to REJECTED",
-                Payments.get(payment.getId()).orElseThrow(() -> new RuntimeException()).getState(),
+                Payments.get(payment.getId()).orElseThrow(RuntimeException::new).getState(),
                 PaymentState.REJECTED);
     }
 
